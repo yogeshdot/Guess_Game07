@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess The Number Game </title>
+    <style>
+        /* Modern reset and font setup */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Center everything on the viewport with a gradient background */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+
+        /* Styled game container card */
+        .game-card {
+            background-color: #ffffff;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            color: #4a4a4a;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            color: #777;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            outline: none;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Status & Feedback Text styling */
+        #result {
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-height: 28px;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        #score {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .btn-reset {
+            background: #e74c3c;
+            display: none; /* Shown on Win/Loss */
+        }
+
+        .btn-reset:hover {
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-card">
+        <h1>Guess The Number ☺️</h1>
+        <p class="subtitle">Pick a number between 1 and 10</p>
+
+        <div class="input-group">
+            <input type="number" id="guess" placeholder="Enter 1-10" min="1" max="10">
+            <button id="submitBtn" onclick="checkGuess()">Submit Guess</button>
+            <button id="resetBtn" class="btn-reset" onclick="resetGame()">Play Again</button>
+        </div>
+
+        <p id="result">Good luck!</p>
+        <p id="score">Score: 10</p>
+    </div>
+
+    <script>
+        var guessnumber = document.getElementById("guess");
+        var result = document.getElementById("result");
+        var scoreDisplay = document.getElementById("score");
+        var submitBtn = document.getElementById("submitBtn");
+        var resetBtn = document.getElementById("resetBtn");
+
+        var randomNumber = Math.floor(Math.random() * 10) + 1;
+        var score = 10;
+
+        // Allow pressing 'Enter' inside the input box to submit
+        guessnumber.addEventListener("keypress", function(event) {
+            if (event.key === "Enter" && !submitBtn.disabled) {
+                checkGuess();
+            }
+        });
+
+        function checkGuess() {
+            var userGuess = Number(guessnumber.value);
+
+            // Basic validation
+            if (!userGuess || userGuess < 1 || userGuess > 10) {
+                result.style.color = "#e67e22";
+                result.textContent = "Please enter a number between 1 and 10.";
+                return;
+            }
+
+            if (userGuess === randomNumber) {
+                result.style.color = "#2ecc71";
+                result.textContent = "🎉 Right guess! You won!";
+                endGame(true);
+            } else {
+                score--;
+                scoreDisplay.textContent = "Score: " + score;
+
+                if (score <= 0) {
+                    result.style.color = "#e74c3c";
+                    result.textContent = "💥 Game Over! The number was " + randomNumber + ".";
+                    endGame(false);
+                } else {
+                    result.style.color = "#e74c3c";
+                    // Give hint: Too high or too low
+                    if (userGuess > randomNumber) {
+                        result.textContent = "Wrong! Try guessing LOWER.";
+                    } else {
+                        result.textContent = "Wrong! Try guessing HIGHER.";
+                    }
+                }
+            }
+            
+            guessnumber.value = "";
+            guessnumber.focus();
+        }
+
+        function endGame(hasWon) {
+            guessnumber.disabled = true;
+            submitBtn.style.display = "none";
+            resetBtn.style.display = "block";
+        }
+
+        function resetGame() {
+            score = 10;
+            randomNumber = Math.floor(Math.random() * 10) + 1;
+            
+            scoreDisplay.textContent = "Score: " + score;
+            result.style.color = "#555";
+            result.textContent = "Good luck!";
+            
+            guessnumber.disabled = false;
+            guessnumber.value = "";
+            submitBtn.style.display = "block";
+            resetBtn.style.display = "none";
+            guessnumber.focus();
+        }
+    </script>
+</body>
+</html>
